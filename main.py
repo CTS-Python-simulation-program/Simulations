@@ -51,13 +51,15 @@ def checkData(boxLen, boxWidth, radius, rounds):
     hitSquare = 0
     ballCoords = [[0,0]]
     demoBalls = []
+    π_Array = []
     lengthToCenter = math.sqrt((circleCenterCoord[0]+boxCenterCoord[0])**2 + (circleCenterCoord[1]+boxCenterCoord[1])**2)
 
     print(f"Box center coordinates: {boxCenterCoord}, Circle center coordinates: {circleCenterCoord}, Square center coordinates: {squareCenterCoord}")
 
     for i in range(0, rounds):
         ballCoords.append(hitRandomBall(boxLen, boxWidth))
-        print(f"\rProgress: {i/rounds*100}%",end="")
+        progress = round(i/rounds*100)
+        print(f"\rProgress:{progress}% [{'#'* progress}]",end="")
         if math.sqrt((ballCoords[i][0]-circleCenterCoord[0])**2 + (ballCoords[i][1]-circleCenterCoord[1])**2) <= radius:
             hitCircle += 1
         elif ballCoords[i][0] < (squareCenterCoord[0]+radius/2) and ballCoords[i][0] > (squareCenterCoord[0]-radius/2) and ballCoords[i][1] < (squareCenterCoord[1]+radius/2) and ballCoords[i][1] > (squareCenterCoord[1]-radius/2):
@@ -67,15 +69,17 @@ def checkData(boxLen, boxWidth, radius, rounds):
     plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, demoBalls, "Before Simulation - Close this window to continue")
     plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, ballCoords, "After Simulation - Close this window to continue")
     print(f"\n\n\nNumber of balls inside the circle: {hitCircle}, Number of balls inside the square: {hitSquare}")
-    print(f"Value of pi: {hitCircle/hitSquare}")
+    π_Array.append(hitCircle/hitSquare)
+    print(f"Value of pi: {π_Array[-1]}")
 
 if __name__ == "__main__":
-    rounds = 10000
-
     try:
-        checkData(float(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]),  rounds)
-    except:
-        print("""Please provide the correct arguments !!!\n
-Correct Format = python courseWork.py <box length> <box width> <radius>
-box length, box width and radius should be numbers""")
-    progress = 0
+        if len(sys.argv) == 5:
+            checkData(float(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]), int(sys.argv[4]))
+        else:
+            print("""Please provide the correct arguments !!!\n
+    Correct Format = python courseWork.py <box length> <box width> <radius> <no of rounds>
+    box length, box width, radius and rounds should be numbers""")
+        progress = 0
+    except Exception as e:
+        print(f"Error: {e}")
