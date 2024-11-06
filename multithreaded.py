@@ -2,16 +2,10 @@ import sys
 import random
 import math
 import matplotlib.pyplot as plt
-global progress
 import matplotlib.patches as patches
-progress = 0
+from concurrent.futures import ThreadPoolExecutor
 
-def plot_π_Array(π_Array):
-    plt.plot(π_Array)
-    plt.xlabel("Rounds")
-    plt.ylabel("π")
-    plt.title("π Value Over Rounds")
-    plt.show()
+progress = 0
 
 def plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, balls, title):
     fig, ax = plt.subplots()
@@ -50,38 +44,47 @@ def hitRandomBall(boxLen, boxWidth):
     locationY = random.randint(0, boxWidth)
     return locationX, locationY
 
-def checkData(boxLen, boxWidth, radius, rounds):
-    boxCenterCoord = [boxLen/2, boxWidth/2]
-    circleCenterCoord = [boxCenterCoord[0]-(boxCenterCoord[0]/2), boxCenterCoord[1]]
-    squareCenterCoord = [boxCenterCoord[0]+(boxCenterCoord[0]/2), boxCenterCoord[1]]
+def checkBallLocation(ball, circleCenterCoord, squareCenterCoord, radius):
     hitCircle = 0
     hitSquare = 0
-    ballCoords = [[0,0]]
+    if math.sqrt((ball[0] - circleCenterCoord[0])**2 + (ball[1] - circleCenterCoord[1])**2) <= radius:
+        hitCircle += 1
+    elif ball[0] < (squareCenterCoord[0] + radius / 2) and ball[0] > (squareCenterCoord[0] - radius / 2) and ball[1] < (squareCenterCoord[1] + radius / 2) and ball[1] > (squareCenterCoord[1] - radius / 2):
+        hitSquare += 1
+    return hitCircle, hitSquare
+
+def checkData(boxLen, boxWidth, radius, rounds):
+    boxCenterCoord = [boxLen/2, boxWidth/2]
+    circleCenterCoord = [boxCenterCoord[0] - (boxCenterCoord[0] / 2), boxCenterCoord[1]]
+    squareCenterCoord = [boxCenterCoord[0] + (boxCenterCoord[0] / 2), boxCenterCoord[1]]
+    hitCircle = 0
+    hitSquare = 0
+    ballCoords = [[0, 0]]
     demoBalls = []
     π_Array = []
-    lengthToCenter = math.sqrt((circleCenterCoord[0]+boxCenterCoord[0])**2 + (circleCenterCoord[1]+boxCenterCoord[1])**2)
+    lengthToCenter = math.sqrt((circleCenterCoord[0] + boxCenterCoord[0])**2 + (circleCenterCoord[1] + boxCenterCoord[1])**2)
 
     print(f"Box center coordinates: {boxCenterCoord}, Circle center coordinates: {circleCenterCoord}, Square center coordinates: {squareCenterCoord}")
 
-    for i in range(0, rounds):
-        ballCoords.append(hitRandomBall(boxLen, boxWidth))
-        progress = round(i/rounds*100)
-        print(f"\rProgress:{progress}% [{'#'* progress}]",end="")
-        if math.sqrt((ballCoords[i][0]-circleCenterCoord[0])**2 + (ballCoords[i][1]-circleCenterCoord[1])**2) <= radius:
-            hitCircle += 1
-        elif ballCoords[i][0] < (squareCenterCoord[0]+radius/2) and ballCoords[i][0] > (squareCenterCoord[0]-radius/2) and ballCoords[i][1] < (squareCenterCoord[1]+radius/2) and ballCoords[i][1] > (squareCenterCoord[1]-radius/2):
-            hitSquare += 1
-        if hitCircle != 0 and hitSquare != 0:
-            π_Array.append(hitCircle/hitSquare)
-        else:
-            π_Array.append(0)
-        i += 1
+    with ThreadPoolExecutor() as executor:
+        for i in range(rounds):
+            ballCoords.append(hitRandomBall(boxLen, boxWidth))
+        # Using map to process the balls concurrently
+        results = list(executor.map(lambda ball: checkBallLocation(ball, circleCenterCoord, squareCenterCoord, radius), ballCoords[1:]))
+
+    # Collecting the results
+    for hitCircleResult, hitSquareResult in results:
+        hitCircle += hitCircleResult
+        hitSquare += hitSquareResult
+        progress = round((hitCircle + hitSquare) / rounds * 100)
+        print(f"\rProgress: {progress}% [{'#' * (progress)}]", end="")
+
     print()
     plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, demoBalls, "Before Simulation - Close this window to continue")
     plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, ballCoords, "After Simulation - Close this window to continue")
     print(f"\n\n\nNumber of balls inside the circle: {hitCircle}, Number of balls inside the square: {hitSquare}")
-    print(f"Value of pi: {hitCircle/hitSquare}")
-    plot_π_Array(π_Array)
+    π_Array.append(hitCircle / hitSquare)
+    print(f"Value of pi: {π_Array[-1]}")
 
 if __name__ == "__main__":
     try:
