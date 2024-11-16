@@ -2,95 +2,67 @@ import sys
 import random
 import math
 import matplotlib.pyplot as plt
+from backup import hitRandomBall
 global progress
 import matplotlib.patches as patches
-progress = 0
+from plotting import Plot
+from messageBox import Popup
 
-def plot_π_Array(π_Array):
-    plt.plot(π_Array)
-    plt.xlabel("Rounds")
-    plt.ylabel("π")
-    plt.title("π Value Over Rounds")
-    plt.show()
+class Sim:
+    def __init__(self, boxLen, boxWidth, radius, rounds):
+        self.boxLen = boxLen
+        self.boxWidth = boxWidth
+        self.radius = radius
+        self.rounds = rounds
+        self.π_Array = []
+        self.progress = 0
+        self.boxCenterCoord = [self.boxLen/2, self.boxWidth/2]
+        self.circleCenterCoord = [self.boxCenterCoord[0]-(self.boxCenterCoord[0]/2), self.boxCenterCoord[1]]
+        self.squareCenterCoord = [self.boxCenterCoord[0]+(self.boxCenterCoord[0]/2), self.boxCenterCoord[1]]
+        self.hitCircle = 0
+        self.hitSquare = 0
+        self.ballCoords = []
+        self.ballDemoCoords= [[0,0]]
+        self.lengthToCenter = math.sqrt((self.circleCenterCoord[0]+self.boxCenterCoord[0])**2 + (self.circleCenterCoord[1]+self.boxCenterCoord[1])**2)
 
-def plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, balls, title):
-    fig, ax = plt.subplots()
-    ax.set_xlim(0, boxLen)
-    ax.set_ylim(0, boxWidth)
-    rectangle = patches.Rectangle((0, 0), boxLen, boxWidth, linewidth=1, edgecolor='blue', facecolor='none')
-    ax.add_patch(rectangle)
-    circle = patches.Circle(circleCenterCoord, radius, linewidth=1, edgecolor='red', facecolor='none')
-    ax.add_patch(circle)
+    def checkCenterCoords(self):
+        print(f"Box Center Coordinates: {self.boxCenterCoord}, Circle center coordinates: {self.circleCenterCoord}, Square center coordinates: {self.squareCenterCoord}")
 
-    square_side = radius
-    square = patches.Rectangle(
-        (squareCenterCoord[0] - square_side / 2, squareCenterCoord[1] - square_side / 2),
-        square_side, square_side, linewidth=1, edgecolor='green', facecolor='none'
-    )
-    ax.add_patch(square)
+    def runSim(self):
+        for i in range(0, self.rounds):
+            self.ballCoords.append(((random.random()*self.boxLen), (random.random()*self.boxWidth)))
+            self.progress = round(i/self.rounds*100)
+            print(f"\rProgress:{self.progress}% [{'█'* self.progress :<100}]",end="")
+            if math.sqrt((self.ballCoords[i][0]-self.circleCenterCoord[0])**2 + (self.ballCoords[i][1]-self.circleCenterCoord[1])**2) < self.radius:
+                self.hitCircle += 1
+            elif self.ballCoords[i][0] < (self.squareCenterCoord[0]+self.radius/2) and self.ballCoords[i][0] > (self.squareCenterCoord[0]-self.radius/2) and self.ballCoords[i][1] < (self.squareCenterCoord[1]+self.radius/2) and self.ballCoords[i][1] > (self.squareCenterCoord[1]-self.radius/2):
+                self.hitSquare += 1
+            if self.hitCircle != 0 and self.hitSquare != 0:
+                self.π_Array.append(self.hitCircle/self.hitSquare)
+            else :
+                self.π_Array.append(0)
+        print("\n")
 
-    ax.plot(*boxCenterCoord, 'bo', label="Box Center")
-    ax.plot(*circleCenterCoord, 'ro', label="Circle Center")
-    ax.plot(*squareCenterCoord, 'go', label="Square Center")
+    def showData(self):
+        debug = Popup()
+        debug.show_popup("Debugger: Simulation",f"Box Center Coordinates: {self.boxCenterCoord}\nCircle center coordinates: {self.circleCenterCoord}\nSquare center coordinates: {self.squareCenterCoord}\n\nHit Circle: {self.hitCircle}\nHit Square: {self.hitSquare}\n\nπ Value: {self.π_Array[-1]}")
+        newPlot = Plot(self.boxLen, self.boxWidth, self.radius, self.boxCenterCoord, self.circleCenterCoord, self.squareCenterCoord, self.ballDemoCoords, "Simulation Overview: Before - Close this window to continue...")
+        newPlot.plot_shapes()
+        debug.show_popup("Debugger: Plot", "Simulation Overview is loading...\n This may take sometime...")
+        newPlot = Plot(self.boxLen, self.boxWidth, self.radius, self.boxCenterCoord, self.circleCenterCoord, self.squareCenterCoord, self.ballCoords, "Simulation Overview: After - Close this window to continue...")
+        # newPlot.plot_shapes_gpu()
+        newPlot.plot_shapes()
+        newPlot.plot_π_Array(self.π_Array)
 
-    try:
-        ax.scatter(*zip(*balls), c='purple', s=1, label="Balls")
-    except:
-        print("Plot Skip")
-    ax.set_title(title)
-    ax.set_xlabel("X")
-    ax.set_ylabel("Y")
-    ax.legend()
 
-    plt.gca().set_aspect('equal', adjustable='box')
-    plt.show()
-
-def hitRandomBall(boxLen, boxWidth):
-    locationX = random.randint(0, boxLen)
-    locationY = random.randint(0, boxWidth)
-    return locationX, locationY
-
-def checkData(boxLen, boxWidth, radius, rounds):
-    boxCenterCoord = [boxLen/2, boxWidth/2]
-    circleCenterCoord = [boxCenterCoord[0]-(boxCenterCoord[0]/2), boxCenterCoord[1]]
-    squareCenterCoord = [boxCenterCoord[0]+(boxCenterCoord[0]/2), boxCenterCoord[1]]
-    hitCircle = 0
-    hitSquare = 0
-    ballCoords = [[0,0]]
-    demoBalls = []
-    π_Array = []
-    lengthToCenter = math.sqrt((circleCenterCoord[0]+boxCenterCoord[0])**2 + (circleCenterCoord[1]+boxCenterCoord[1])**2)
-
-    print(f"Box center coordinates: {boxCenterCoord}, Circle center coordinates: {circleCenterCoord}, Square center coordinates: {squareCenterCoord}")
-
-    for i in range(0, rounds):
-        ballCoords.append(hitRandomBall(boxLen, boxWidth))
-        progress = round(i/rounds*100)
-        print(f"\rProgress:{progress}% [{'#'* progress}]",end="")
-        if math.sqrt((ballCoords[i][0]-circleCenterCoord[0])**2 + (ballCoords[i][1]-circleCenterCoord[1])**2) <= radius:
-            hitCircle += 1
-        elif ballCoords[i][0] < (squareCenterCoord[0]+radius/2) and ballCoords[i][0] > (squareCenterCoord[0]-radius/2) and ballCoords[i][1] < (squareCenterCoord[1]+radius/2) and ballCoords[i][1] > (squareCenterCoord[1]-radius/2):
-            hitSquare += 1
-        if hitCircle != 0 and hitSquare != 0:
-            π_Array.append(hitCircle/hitSquare)
-        else:
-            π_Array.append(0)
-        i += 1
-    print()
-    plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, demoBalls, "Before Simulation - Close this window to continue")
-    plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, ballCoords, "After Simulation - Close this window to continue")
-    print(f"\n\n\nNumber of balls inside the circle: {hitCircle}, Number of balls inside the square: {hitSquare}")
-    print(f"Value of pi: {hitCircle/hitSquare}")
-    plot_π_Array(π_Array)
 
 if __name__ == "__main__":
-    try:
-        if len(sys.argv) == 5:
-            checkData(float(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]), int(sys.argv[4]))
-        else:
-            print("""Please provide the correct arguments !!!\n
-    Correct Format = python courseWork.py <box length> <box width> <radius> <no of rounds>
-    box length, box width, radius and rounds should be numbers""")
-        progress = 0
-    except Exception as e:
-        print(f"Error: {e}")
+    if len(sys.argv) == 5:
+        MonteSim = Sim(float(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]), int(sys.argv[4]))
+        MonteSim.checkCenterCoords()
+        MonteSim.runSim()
+        MonteSim.showData()
+    else:
+        print("""Please provide the correct arguments !!!\n
+                Correct Format = python main.py <box length> <box width> <radius> <no of rounds>
+                box length, box width, radius and rounds should be numbers""")

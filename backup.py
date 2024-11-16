@@ -2,10 +2,16 @@ import sys
 import random
 import math
 import matplotlib.pyplot as plt
+global progress
 import matplotlib.patches as patches
-from concurrent.futures import ThreadPoolExecutor
-
 progress = 0
+
+def plot_π_Array(π_Array):
+    plt.plot(π_Array)
+    plt.xlabel("Rounds")
+    plt.ylabel("π")
+    plt.title("π Value Over Rounds")
+    plt.show()
 
 def plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, balls, title):
     fig, ax = plt.subplots()
@@ -40,51 +46,44 @@ def plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squ
     plt.show()
 
 def hitRandomBall(boxLen, boxWidth):
-    locationX = random.randint(0, boxLen)
-    locationY = random.randint(0, boxWidth)
+    # locationX = random.randint(0, boxLen)
+    # locationY = random.randint(0, boxWidth)
+    locationX = random.random()*boxLen
+    locationY = random.random()*boxWidth
     return locationX, locationY
-
-def checkBallLocation(ball, circleCenterCoord, squareCenterCoord, radius):
-    hitCircle = 0
-    hitSquare = 0
-    if math.sqrt((ball[0] - circleCenterCoord[0])**2 + (ball[1] - circleCenterCoord[1])**2) <= radius:
-        hitCircle += 1
-    elif ball[0] < (squareCenterCoord[0] + radius / 2) and ball[0] > (squareCenterCoord[0] - radius / 2) and ball[1] < (squareCenterCoord[1] + radius / 2) and ball[1] > (squareCenterCoord[1] - radius / 2):
-        hitSquare += 1
-    return hitCircle, hitSquare
 
 def checkData(boxLen, boxWidth, radius, rounds):
     boxCenterCoord = [boxLen/2, boxWidth/2]
-    circleCenterCoord = [boxCenterCoord[0] - (boxCenterCoord[0] / 2), boxCenterCoord[1]]
-    squareCenterCoord = [boxCenterCoord[0] + (boxCenterCoord[0] / 2), boxCenterCoord[1]]
+    circleCenterCoord    = [boxCenterCoord[0]-(boxCenterCoord[0]/2), boxCenterCoord[1]]
+    squareCenterCoord = [boxCenterCoord[0]+(boxCenterCoord[0]/2), boxCenterCoord[1]]
     hitCircle = 0
     hitSquare = 0
-    ballCoords = [[0, 0]]
+    ballCoords = [[0,0]]
     demoBalls = []
     π_Array = []
-    lengthToCenter = math.sqrt((circleCenterCoord[0] + boxCenterCoord[0])**2 + (circleCenterCoord[1] + boxCenterCoord[1])**2)
+    lengthToCenter = math.sqrt((circleCenterCoord[0]+boxCenterCoord[0])**2 + (circleCenterCoord[1]+boxCenterCoord[1])**2)
 
     print(f"Box center coordinates: {boxCenterCoord}, Circle center coordinates: {circleCenterCoord}, Square center coordinates: {squareCenterCoord}")
 
-    with ThreadPoolExecutor() as executor:
-        for i in range(rounds):
-            ballCoords.append(hitRandomBall(boxLen, boxWidth))
-        # Using map to process the balls concurrently
-        results = list(executor.map(lambda ball: checkBallLocation(ball, circleCenterCoord, squareCenterCoord, radius), ballCoords[1:]))
-
-    # Collecting the results
-    for hitCircleResult, hitSquareResult in results:
-        hitCircle += hitCircleResult
-        hitSquare += hitSquareResult
-        progress = round((hitCircle + hitSquare) / rounds * 100)
-        print(f"\rProgress: {progress}% [{'#' * (progress)}]", end="")
-
+    for i in range(0, rounds):
+        ballCoords.append(hitRandomBall(boxLen, boxWidth))
+        progress = round(i/rounds*100)
+        print(f"\rProgress:{progress}% [{'█'* progress :<100}]",end="")
+        if math.sqrt((ballCoords[i][0]-circleCenterCoord[0])**2 + (ballCoords[i][1]-circleCenterCoord[1])**2) < radius:
+            hitCircle += 1
+        elif ballCoords[i][0] < (squareCenterCoord[0]+radius/2) and ballCoords[i][0] > (squareCenterCoord[0]-radius/2) and ballCoords[i][1] < (squareCenterCoord[1]+radius/2) and ballCoords[i][1] > (squareCenterCoord[1]-radius/2):
+            hitSquare += 1
+        if hitCircle != 0 and hitSquare != 0:
+            π_Array.append(hitCircle/hitSquare)
+        else:
+            π_Array.append(0)
+        i += 1
     print()
     plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, demoBalls, "Before Simulation - Close this window to continue")
     plot_shapes(boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, ballCoords, "After Simulation - Close this window to continue")
     print(f"\n\n\nNumber of balls inside the circle: {hitCircle}, Number of balls inside the square: {hitSquare}")
-    π_Array.append(hitCircle / hitSquare)
-    print(f"Value of pi: {π_Array[-1]}")
+    print(f"Value of pi: {hitCircle/hitSquare}")
+    plot_π_Array(π_Array)
 
 if __name__ == "__main__":
     try:
@@ -92,7 +91,7 @@ if __name__ == "__main__":
             checkData(float(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]), int(sys.argv[4]))
         else:
             print("""Please provide the correct arguments !!!\n
-    Correct Format = python courseWork.py <box length> <box width> <radius> <no of rounds>
+    Correct Format = python main.py <box length> <box width> <radius> <no of rounds>
     box length, box width, radius and rounds should be numbers""")
         progress = 0
     except Exception as e:
