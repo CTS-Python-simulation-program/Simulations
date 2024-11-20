@@ -5,19 +5,19 @@ import matplotlib.pyplot as plt
 from backup import hitRandomBall
 import matplotlib.patches as patches
 from messageBox import Popup
-import vispy.plot as vp
+# import vispy.plot as vp
 
 globalDebug = Popup()
 
 # -> Try to initialize hardware acceleration
-try:
-    import cupy as cp
-    globalDebug.show_popup("Hardware Acceleration Status", "CUDA Device Detected !\nCanvas is now hardware accelerated using NVIDIA Graphics.")
-    cuda_available = True
-except ImportError:
-    import numpy as np
-    globalDebug.show_popup("Hardware Acceleration Status", "Failed to detect CUDA Device !\nHardware Acceleration is not available.")
-    cuda_available = False
+# try:
+#     import cupy as cp
+#     globalDebug.show_popup("Hardware Acceleration Status", "CUDA Device Detected !\nCanvas is now hardware accelerated using NVIDIA Graphics.")
+#     cuda_available = True
+# except ImportError:
+#     import numpy as np
+#     globalDebug.show_popup("Hardware Acceleration Status", "Failed to detect CUDA Device !\nHardware Acceleration is not available.")
+#     cuda_available = False
 
 class Plot:
     def __init__(self, boxLen, boxWidth, radius, boxCenterCoord, circleCenterCoord, squareCenterCoord, balls, title):
@@ -72,29 +72,29 @@ class Plot:
 
 
     # TODO - Hardware acceleration fix
-    def plot_shapes_gpu(self):
-        fig = vp.Fig(show=True)
-        ax = fig[0, 0]
+    # def plot_shapes_gpu(self):
+    #     fig = vp.Fig(show=True)
+    #     ax = fig[0, 0]
 
-        # Plot box - blue lines
-        ax.plot([0, self.boxLen, self.boxLen, 0, 0],
-                [0, 0, self.boxWidth, self.boxWidth, 0],
-                color=(0),  # RGBA for blue
-                width=2)
+    #     # Plot box - blue lines
+    #     ax.plot([0, self.boxLen, self.boxLen, 0, 0],
+    #             [0, 0, self.boxWidth, self.boxWidth, 0],
+    #             color=(0),  # RGBA for blue
+    #             width=2)
 
-        # Plot Circle - red lines
-        theta = cp.linspace(0, 2 * cp.pi, 100) if cuda_available else np.linspace(0, 2 * cp.pi, 100)
-        circle_x = self.boxLen / 2 + self.radius * cp.cos(theta) if cuda_available else self.boxLen / 2 + self.radius * np.cos(theta)
-        circle_y = self.boxWidth / 2 + self.radius * cp.sin(theta) if cuda_available else self.boxWidth / 2 + self.radius * np.sin(theta)
-        ax.plot(circle_x, circle_y,
-                color=(1, 0, 0, 1),  # RGBA for red
-                width=2)
+    #     # Plot Circle - red lines
+    #     theta = cp.linspace(0, 2 * cp.pi, 100) if cuda_available else np.linspace(0, 2 * cp.pi, 100)
+    #     circle_x = self.boxLen / 2 + self.radius * cp.cos(theta) if cuda_available else self.boxLen / 2 + self.radius * np.cos(theta)
+    #     circle_y = self.boxWidth / 2 + self.radius * cp.sin(theta) if cuda_available else self.boxWidth / 2 + self.radius * np.sin(theta)
+    #     ax.plot(circle_x, circle_y,
+    #             color=(1, 0, 0, 1),  # RGBA for red
+    #             width=2)
 
-        # Plot Balls - purple dots
-        ax.scatter(self.balls[:, 0], self.balls[:, 1],
-                  size=5,
-                  color=(0.5, 0, 0.5, 1))  # RGBA for purple
+    #     # Plot Balls - purple dots
+    #     ax.scatter(self.balls[:, 0], self.balls[:, 1],
+    #               size=5,
+    #               color=(0.5, 0, 0.5, 1))  # RGBA for purple
 
-        ax.set_xlim([0, self.boxLen])
-        ax.set_ylim([0, self.boxWidth])
-        ax.title = "Simulation Plot"
+    #     ax.set_xlim([0, self.boxLen])
+    #     ax.set_ylim([0, self.boxWidth])
+    #     ax.title = "Simulation Plot"
