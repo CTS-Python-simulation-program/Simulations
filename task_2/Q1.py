@@ -30,4 +30,4 @@ if __name__ == "__main__":
       calc_girls(iterations)
 
     except ValueError:
-        print("Please enter a positive integer")
+        print("Please enter a valid integer")
