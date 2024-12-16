@@ -5,7 +5,6 @@ def simulate_dice_throws(num_throws):
     count_sum_30 = 0
 
     for _ in range(num_throws):
-        # Generate 10 random dice throws
         dice_throws = [random.randint(1, 6) for _ in range(10)]
 
       # if case where checks the sum of 10 dice = 30
