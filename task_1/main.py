@@ -2,10 +2,11 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-global runSim
+global runSim, trackArray
 from sysFiles.plotting import Plot
 import sysFiles.core as core
 import os
+trackArray = 0
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -272,10 +273,15 @@ class Ui_MainWindow(object):
         newPlot.plot_shapes()
 
     def saveArrayToMarkDown(self):
-        global runSim
-        with open("π_Array.md", "w") as file:
-            for i in runSim.π_Array:
-                file.write(str(i) + "\n")
+        global runSim, trackArray
+        import csv
+        with open(f"PiVariations/π_Array_iteration_{trackArray}.csv", "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["iterator", "pi Value"])
+            for index, value in enumerate(runSim.π_Array):
+                writer.writerow([index, value])
+
+        trackArray += 1
 
     def showPiArray(self):
         global runSim
