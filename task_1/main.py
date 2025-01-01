@@ -3,8 +3,9 @@
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 global runSim
-from plotting import Plot
-import core
+from sysFiles.plotting import Plot
+import sysFiles.core as core
+import os
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -131,6 +132,7 @@ class Ui_MainWindow(object):
         self.checkBox_2 = QtWidgets.QCheckBox(parent=self.centralwidget)
         self.checkBox_2.setGeometry(QtCore.QRect(590, 400, 261, 31))
         self.checkBox_2.setObjectName("checkBox_2")
+        # self.checkBox_2.hide()
         self.lcdNumber = QtWidgets.QLCDNumber(parent=self.centralwidget)
         self.lcdNumber.setGeometry(QtCore.QRect(10, 280, 841, 101))
         self.lcdNumber.setSmallDecimalPoint(False)
@@ -208,6 +210,21 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.checkCommandlineArgs()
+
+
+
+    def checkCommandlineArgs(self):
+        if len(sys.argv) == 5:
+            # Set Values on display
+            print("\n !! Commandline Override... !!")
+            self.textEdit.setText(sys.argv[1])
+            self.textEdit_2.setText(sys.argv[2])
+            self.textEdit_3.setText(sys.argv[3])
+            self.dial.setValue(int(sys.argv[4]))
+            self.getValuesAndRun(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+        else:
+            print("No Commandline Args, skipping. Commandline Usage = python3 main.py <boxLen> <boxWidth> <radius> <iterations>")
 
     def unhideIfFirstRunTrue(self):
         if self.checkFirstRun == True:
@@ -254,6 +271,12 @@ class Ui_MainWindow(object):
         )
         newPlot.plot_shapes()
 
+    def saveArrayToMarkDown(self):
+        global runSim
+        with open("π_Array.md", "w") as file:
+            for i in runSim.π_Array:
+                file.write(str(i) + "\n")
+
     def showPiArray(self):
         global runSim
         newPlot = Plot(
@@ -267,10 +290,15 @@ class Ui_MainWindow(object):
             "After Simulation",
         )
         newPlot.plot_π_Array(runSim.π_Array)
+        self.saveArrayToMarkDown()
+
 
     def getValuesAndRun(self, boxLen, boxWidth, radius, iterations):
         global runSim
         self.checkFirstRun = False
+        if boxLen == "" or boxWidth == "" or radius == "" or iterations == "":
+            os.system("python3 sysFiles/anomaly.py 'Missing Values'")
+            return
         def update_progress(progress_value):
             self.progressBar.setValue(progress_value)
             self.dial.setValue(self.dial.value() - 1)
@@ -280,8 +308,11 @@ class Ui_MainWindow(object):
             progress_callback=update_progress
         )
         runSim.runSim()
-        self.lcdNumber.setProperty("value", runSim.π_Array[-1])
-        self.checkFirstRun = True
+        try:
+            self.lcdNumber.setProperty("value", runSim.π_Array[-1])
+            self.checkFirstRun = True
+        except Exception as e:
+            os.system(f"python3 sysFiles/anomaly.py '{e}, Set a proper iteration value !'")
 
 
     def retranslateUi(self, MainWindow):
@@ -294,7 +325,7 @@ class Ui_MainWindow(object):
         self.pushButton.setText(_translate("MainWindow", "Display plot before simulation"))
         self.pushButton_2.setText(_translate("MainWindow", "Pi Variation with time"))
         self.pushButton_3.setText(_translate("MainWindow", "Display plot after simulation"))
-        self.checkBox_2.setText(_translate("MainWindow", "Hardware Acceleration"))
+        self.checkBox_2.setText(_translate("MainWindow", "CUDA [Un-Available]"))
         self.label_5.setText(_translate("MainWindow", "Calculated Pi Value :"))
         self.label_6.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:8pt;\">Computing Group Project: Monte Carlo Simulation</span></p></body></html>"))
         self.pushButton_4.setText(_translate("MainWindow", "▶ Run Simulation"))

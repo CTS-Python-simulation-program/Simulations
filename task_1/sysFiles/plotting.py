@@ -3,10 +3,13 @@ import random
 import math
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from messageBox import Popup
+from sysFiles.messageBox import Popup
 import vispy.plot as vp
 
 globalDebug = Popup()
+global hardwareAccel
+
+hardwareAccel = False
 
 # -> Try to initialize hardware acceleration
 try:
@@ -18,6 +21,8 @@ try:
     )
     print(f"Device Details : {cp.cuda.Device(0)}\n\n")
     cuda_available = True
+    if hardwareAccel == False:
+        print("Hardware Acceleration is not developed yet !, CUDA device will be ignored.\n\n")
 except ImportError:
     # -> if hardware acceleration initialization shits the bed
     import numpy as np

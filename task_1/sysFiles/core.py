@@ -2,12 +2,12 @@ import sys
 import random
 import math
 import matplotlib.pyplot as plt
-from backup import hitRandomBall
+from sysFiles.backup import hitRandomBall
 
 global progress
 import matplotlib.patches as patches
-from plotting import Plot
-from messageBox import Popup
+from sysFiles.plotting import Plot
+from sysFiles.messageBox import Popup
 
 
 class Sim:
