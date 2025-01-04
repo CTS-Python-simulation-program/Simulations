@@ -1,6 +1,7 @@
 import sys
 import random
 import math
+import time
 import matplotlib.pyplot as plt
 from sysFiles.backup import hitRandomBall
 
@@ -87,8 +88,6 @@ class Sim:
                 self.hitSquare += 1
             if self.hitCircle != 0 and self.hitSquare != 0:
                 self.π_Array.append(self.hitCircle / self.hitSquare)
-            else:
-                self.π_Array.append(0)
         print("\n")
 
     def showData(self):
