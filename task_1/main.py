@@ -5,6 +5,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 global runSim, trackArray
 from sysFiles.plotting import Plot
 import sysFiles.core as core
+import datetime
 import os
 trackArray = 0
 
@@ -275,13 +276,16 @@ class Ui_MainWindow(object):
     def saveArrayToMarkDown(self):
         global runSim, trackArray
         import csv
-        with open(f"PiVariations/π_Array_iteration_{trackArray}.csv", "w", newline="") as file:
+        from datetime import datetime
+        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        with open(f"PiVariations/π_Array_iteration_{current_time}.csv", "w", newline="") as file:
             writer = csv.writer(file)
             writer.writerow(["iterator", "pi Value"])
             for index, value in enumerate(runSim.π_Array):
                 writer.writerow([index, value])
 
         trackArray += 1
+
 
     def showPiArray(self):
         global runSim
@@ -302,8 +306,14 @@ class Ui_MainWindow(object):
     def getValuesAndRun(self, boxLen, boxWidth, radius, iterations):
         global runSim
         self.checkFirstRun = False
-        if boxLen == "" or boxWidth == "" or radius == "" or iterations == "":
+        if (boxLen == "" or boxWidth == "" or radius == "" or iterations == ""):
             os.system("python3 sysFiles/anomaly.py 'Missing Values'")
+            return
+        if (boxWidth > 2*radius) :
+            os.system("python3 sysFiles/anomaly.py 'Box Width should be greater than 2*Radius'")
+            return
+        if (int(boxLen)/2) - int((int(boxLen)/2)/2) < int(radius) :
+            os.system("python3 sysFiles/anomaly.py 'Circle Radius should be less than half of the box width'")
             return
         def update_progress(progress_value):
             self.progressBar.setValue(progress_value)
