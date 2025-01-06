@@ -45,6 +45,7 @@ pip install -r requirements.txt
 ```
 navigate to the task_2 folder
 cd task_2
+For Q1:
 python3 Q1.py <number of samples>
 For Q2:
 python3 Q2.py <number of samples>
