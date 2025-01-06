@@ -7,6 +7,18 @@ These instructions will get you a copy of the project up and running on your loc
 
 The side length of the square is the same as the radius of the circle.
 The positions are determined by the following logic:
+
+Mathematical Prespective:
+Box Dimensions
+- Length = L
+- Width = W
+
+- Center of the rectangle = [L/2, W/2]
+- Center of the circle = [L/2 - L/4, W/2]
+- Center of the square = [L/2 + L/4, W/2]
+
+This is implemented in the program logic as follows:
+
 > task_1/sysFiles/core.py (core.py contains the logic for the simulation)
 ```python
     self.boxCenterCoord = [self.boxLen / 2, self.boxWidth / 2]
@@ -28,6 +40,14 @@ The distance between the center of the circle and the center of the box is calcu
 
 and as for the simulation, the random points are plotted inside the box, and these will generate according to the length and width of the box
 and to check if a point is inside the square or the cirlce, the following logic is used:
+
+Mathematical Prespective:
+
+if the distance between the center of the circle and the point is less than the radius of the circle, then the point is inside the circle.
+if the point is inside the square, then the point is inside the square.
+
+we can show the above logic in the following code:
+
 > task_1/sysFiles/core.py (core.py contains the logic for the simulation)
 ```python
     if (
