@@ -11,7 +11,7 @@ def calc_girls(iterations):
             G2+=1
             if(r.count("Girl")==3):
                 G1+= 1
-        
+
     probability = G1 / G2
 
     print("Probability of the children being all girls when at least one child is a girl = ",probability)
@@ -21,12 +21,14 @@ if __name__ == "__main__":
 
     if len(sys.argv) < 2:
         sys.exit(1)
+    else:
+        print("Usage: python3 Q1.py <iterations>")
     try:
       iterations = int(sys.argv[1])
       if iterations <= 0:
          print("Please enter a positive integer")
          sys.exit(1)
-      
+
       calc_girls(iterations)
 
     except ValueError:

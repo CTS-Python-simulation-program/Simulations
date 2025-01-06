@@ -11,7 +11,7 @@ def simulate_dice_throws(num_throws):
         if sum(dice_throws) == 30:
             count_sum_30 += 1
 
-    # Calculate the ratio
+    #Calculate the ratio
     ratio = (count_sum_30 / num_throws)
 
     return ratio
@@ -23,6 +23,3 @@ if len(sys.argv) == 2:
     print(f"The ratio of throws where the sum of 10 dice tosses equals 30 out of {num_throws} is {ratio:.2f}")
 else :
     print("Usage: python diceTest.py <num_throws>")
-
-
-
