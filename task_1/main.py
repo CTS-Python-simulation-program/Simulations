@@ -306,15 +306,7 @@ class Ui_MainWindow(object):
     def getValuesAndRun(self, boxLen, boxWidth, radius, iterations):
         global runSim
         self.checkFirstRun = False
-        if (boxLen == "" or boxWidth == "" or radius == "" or iterations == ""):
-            os.system("python3 sysFiles/anomaly.py 'Missing Values'")
-            return
-        if (boxWidth > 2*radius) :
-            os.system("python3 sysFiles/anomaly.py 'Box Width should be greater than 2*Radius'")
-            return
-        if (int(boxLen)/2) - int((int(boxLen)/2)/2) < int(radius) :
-            os.system("python3 sysFiles/anomaly.py 'Circle Radius should be less than half of the box width'")
-            return
+
         def update_progress(progress_value):
             self.progressBar.setValue(progress_value)
             self.dial.setValue(self.dial.value() - 1)
