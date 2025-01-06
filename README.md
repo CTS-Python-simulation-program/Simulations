@@ -43,7 +43,6 @@ pip install -r requirements.txt
 ### Running the program
 
 ```
-For Q1:
 navigate to the task_2 folder
 cd task_2
 python3 Q1.py <number of samples>
