@@ -20,6 +20,8 @@ pip install -r requirements.txt
 ### Running the program
 
 ```
+navigate to the task_1 folder
+cd task_1
 For Commandline Version :
 python3 main.py <box length> <box width> <radius of the circle> <number of samples>
 For GUI Version :
@@ -36,11 +38,15 @@ python3 main.py
 
 1. Clone this repo
 ```
-cd task_2/
 pip install -r requirements.txt
 ```
 ### Running the program
 
 ```
--- FILL THIS
+For Q1:
+navigate to the task_2 folder
+cd task_2
+python3 Q1.py <number of samples>
+For Q2:
+python3 Q2.py <number of samples>
 ```
